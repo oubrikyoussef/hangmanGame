@@ -39,14 +39,21 @@ async function initializeGame() {
     }
 
     questInfo = (await fetchedData.json()).record;
+    localStorage.setItem("questInfo",JSON.stringify(questInfo));
     startGame();
   } catch (error) {
     console.error(error);
     alert('Failed to initialize the game. Please try again later.');
   }
 }
-
-initializeGame();
+const storedQuestions = localStorage.getItem("questInfo");
+if(!storedQuestions){
+  initializeGame();
+}
+else{
+  questInfo = JSON.parse(storedQuestions);
+  startGame();
+}
 
 // Start new Game
 function startGame() {
