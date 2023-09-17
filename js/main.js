@@ -59,36 +59,34 @@ else{
 function startGame() {
   const randomQuestIndex = getRandomIndex(questInfo.length);
   const randomQuest = questInfo[randomQuestIndex];
-  const solution = randomQuest.solution;
+  const solution = randomQuest.solution.toUpperCase();
 
   questPlaceHolder.innerText = randomQuest.question;
   categoryPlaceHolder.innerText = randomQuest.category;
   hintPlaceHolder.innerText = createHint(solution);
 
-  const entriesFieldWithNoSpace = [];
-  createEntryFields(solution, entriesFieldWithNoSpace);
-  const solutionWithNoSpace = solution.replace(/\s/g, '').toUpperCase(); // Remove spaces from solution
+  const entryFields = createEntryFields(solution);
 
   const handler = (event)=>{
     if(event.target.className === "keyboard__touch")
     {
-      keyTouchHandler(event.target, solutionWithNoSpace, entriesFieldWithNoSpace,solution,handler)
+      keyTouchHandler(event.target,solution,handler,entryFields)
     }
   }
   keyboard.addEventListener("click",handler)
 }
 
-function keyTouchHandler(key, solutionWithNoSpace, entriesFieldWithNoSpace,solution,handler) {
+function keyTouchHandler(key,solution,handler,entryFields) {
   key.classList.add('active');
-
-  if (solutionWithNoSpace.includes(key.innerText)) {
+  const solutionWithNoSpace = solution.replace(/\s/g, '').toUpperCase();
+  if (solution.includes(key.innerText)) {
       correct.currentTime = 0;
       correct.play();
-      const allIndexes = getAllIndexes(solutionWithNoSpace, key.innerText);
-    goodResponsesNum += allIndexes.length;
-    for (let i = 0; i < allIndexes.length; i++) {
-        entriesFieldWithNoSpace[allIndexes[i]].innerText = key.innerText;
-    }
+      const allIndexes = getAllIndexes(solution, key.innerText);
+      goodResponsesNum += allIndexes.length;
+      for (let i = 0; i < allIndexes.length; i++) {
+          entryFields[allIndexes[i]].innerText = key.innerText;
+      }
     if (goodResponsesNum === solutionWithNoSpace.length) {
         score++;
         scoreHolder.innerText = score;
@@ -147,19 +145,18 @@ function createHint(aSolution) {
   }
 }
 
-function createEntryFields(solution, entriesFieldWithNoSpace) {
+function createEntryFields(solution) {
+  const entryFields = [];
   for (let i = 0; i < solution.length; i++) {
     const entryField = document.createElement('div');
     entryField.classList.add('entries__field');
-
     if (solution[i] === ' ') {
       entryField.classList.add('has-space');
-    } else {
-      entriesFieldWithNoSpace.push(entryField);
-    }
-
+    } 
+    entryFields.push(entryField);
     entriesHolder.append(entryField);
   }
+  return entryFields;
 }
 
 function getAllIndexes(string, character) {
